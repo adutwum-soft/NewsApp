@@ -1,9 +1,12 @@
 package com.example.newsapp.ui
 
 import androidx.compose.runtime.Composable
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
+import com.example.newsapp.MockData
 import com.example.newsapp.ui.screen.DetailsScreen
 import com.example.newsapp.ui.screen.TopNews
 
@@ -23,8 +26,16 @@ fun Navigation(){
         composable("TopNews"){
             TopNews(navController = navController)
         }
-        composable("Detail"){
-            DetailsScreen(navController = navController)
+        composable("Detail/{newsId}",
+            arguments = listOf(
+                navArgument("newsId"){
+                    type = NavType.IntType
+                }
+            )
+        ){
+            val id = it.arguments?.getInt("newsId")
+            val newsData = MockData.getNews(id)
+            DetailsScreen(navController = navController, newsData)
         }
     }
 }

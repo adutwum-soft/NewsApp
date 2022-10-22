@@ -14,13 +14,14 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
+import com.example.newsapp.models.NewsData
 
 /**
  * Created by Patrick Adutwum on 22/10/2022.
  */
 
 @Composable
-fun DetailsScreen(navController: NavController){
+fun DetailsScreen(navController: NavController, newsData: NewsData){
     Column(
         modifier = Modifier.fillMaxWidth()
             .background(Color.White),
@@ -31,7 +32,7 @@ fun DetailsScreen(navController: NavController){
 //            navController.navigate("TopNews")
             navController.popBackStack()
         }) {
-            Text(text = "Go to TopNews Screen")
+            Text(text = "Go to TopNews Screen ${newsData.author}")
         }
     }
 }
@@ -39,5 +40,5 @@ fun DetailsScreen(navController: NavController){
 @Composable
 @Preview(showBackground = true)
 fun DetailsScreenPreview(){
-    DetailsScreen(rememberNavController())
+//    DetailsScreen(rememberNavController())
 }
