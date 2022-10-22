@@ -1,6 +1,10 @@
 package com.example.newsapp.ui
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -22,7 +26,9 @@ fun NewsApp(){
 @Composable
 fun Navigation(){
     val navController = rememberNavController()
-    NavHost(navController = navController, startDestination = "TopNews" ){
+    val scrollState = rememberScrollState()
+    NavHost(navController = navController, startDestination = "TopNews" , modifier = Modifier.background(
+        Color.White)){
         composable("TopNews"){
             TopNews(navController = navController)
         }
@@ -35,7 +41,7 @@ fun Navigation(){
         ){
             val id = it.arguments?.getInt("newsId")
             val newsData = MockData.getNews(id)
-            DetailsScreen(navController = navController, newsData)
+            DetailsScreen(navController = navController, newsData, scrollState)
         }
     }
 }

@@ -1,39 +1,68 @@
 package com.example.newsapp.ui.screen
 
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.material.Button
-import androidx.compose.material.Colors
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.Icon
 import androidx.compose.material.Text
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.DateRange
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.colorResource
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import androidx.navigation.compose.rememberNavController
 import com.example.newsapp.models.NewsData
+import com.example.newsapp.R
 
 /**
  * Created by Patrick Adutwum on 22/10/2022.
  */
 
 @Composable
-fun DetailsScreen(navController: NavController, newsData: NewsData){
+fun DetailsScreen(navController: NavController, newsData: NewsData, scrollState: ScrollState){
     Column(
-        modifier = Modifier.fillMaxWidth()
+        modifier = Modifier
+            .fillMaxWidth()
+            .verticalScroll(scrollState)
+            .padding(16.dp)
             .background(Color.White),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Text(text = "Details Screen", fontWeight = FontWeight.SemiBold)
-        Button(onClick = {
-//            navController.navigate("TopNews")
-            navController.popBackStack()
-        }) {
-            Text(text = "Go to TopNews Screen ${newsData.author}")
+        Text(text = "Details Screen", fontWeight = FontWeight.SemiBold, color = Color.Black)
+        Image(painter = painterResource(id = newsData.image), contentDescription = "")
+        Row(modifier = Modifier
+            .fillMaxWidth()
+            .padding(8.dp),
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            InfoWithIcon(Icons.Default.Edit, info = newsData.author)
+            InfoWithIcon(Icons.Default.DateRange, info = newsData.publishedAt)
         }
+        Text(text = newsData.title, fontWeight = FontWeight.SemiBold, color = Color.Black)
+        Text(text = newsData.description, fontWeight = FontWeight.SemiBold, color = Color.Black, modifier = Modifier.padding(top = 16.dp))
+    }
+}
+
+@Composable
+fun InfoWithIcon(icon: ImageVector, info: String){
+    Row() {
+        Icon(
+            imageVector = icon,
+            contentDescription = "Author",
+            modifier = Modifier.padding(end = 8.dp),
+            colorResource(id = R.color.purple_500)
+        )
+        Text(text = info, color = Color.Black)
     }
 }
 
