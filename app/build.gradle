@@ -48,6 +48,7 @@ android {
 
 dependencies {
 
+    implementation "com.squareup.okhttp3:logging-interceptor:$intercepter_version"
     implementation "com.github.skydoves:landscapist-coil:$landscapist_version"
     implementation "com.squareup.moshi:moshi-kotlin:$moshi_version"
     implementation "com.squareup.retrofit2:converter-moshi:$retrofit_version"
