@@ -16,6 +16,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.newsapp.MockData
 import com.example.newsapp.components.BottomMenu
+import com.example.newsapp.models.ArticleCategory
 import com.example.newsapp.models.BottomMenuScreen
 import com.example.newsapp.models.TopNewsArticle
 import com.example.newsapp.network.NewsManager
@@ -86,8 +87,12 @@ fun NavGraphBuilder.bottomNavigation(navController: NavController, articles: Lis
         TopNews(navController = navController, articles = articles)
     }
     composable(BottomMenuScreen.Categories.route){
+        newsManager.getArticlesByCategory(ArticleCategory.BUSINESS.categoryName)
+        newsManager.onSelectedCategoryChanged(ArticleCategory.BUSINESS.categoryName)
+
         Categories(newsManager = newsManager, onFetchCategory = {
             newsManager.onSelectedCategoryChanged(it)
+            newsManager.getArticlesByCategory(it)
         })
     }
     composable(BottomMenuScreen.Sources.route){
