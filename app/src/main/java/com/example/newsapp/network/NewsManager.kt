@@ -82,7 +82,7 @@ class NewsManager {
     }
 
     fun getArticlesBySource(){
-        val service = Api.retrofitService.getArticlesByCategory(sourceName.value)
+        val service = Api.retrofitService.getArticleBySources(sourceName.value)
         service.enqueue(object : Callback<TopNewsResponse> {
             override fun onResponse(
                 call: Call<TopNewsResponse>,
