@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -18,7 +19,9 @@ import androidx.navigation.NavController
 import com.example.newsapp.MockData
 import com.example.newsapp.MockData.getTimeAgo
 import com.example.newsapp.R
+import com.example.newsapp.components.SearchBar
 import com.example.newsapp.models.TopNewsArticle
+import com.example.newsapp.network.NewsManager
 import com.skydoves.landscapist.coil.CoilImage
 
 /**
@@ -26,16 +29,24 @@ import com.skydoves.landscapist.coil.CoilImage
  */
 
 @Composable
-fun TopNews(navController: NavController, articles: List<TopNewsArticle>){
+fun TopNews(navController: NavController, articles: List<TopNewsArticle>,
+            query: MutableState<String>, newsManager: NewsManager){
     Column(
         modifier = Modifier.fillMaxWidth(),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        Text(text = "Top News", fontWeight = FontWeight.SemiBold)
+//        Text(text = "Top News", fontWeight = FontWeight.SemiBold)
+        SearchBar(query = query, newsManager = newsManager)
+        val resultsList = mutableListOf<TopNewsArticle>()
+        if (query.value != ""){
+            resultsList.addAll(newsManager.searchNews.value.articles?: articles)
+        }else{
+            resultsList.addAll(articles)
+        }
         LazyColumn{
-            items(articles.size){index->
+            items(resultsList.size){index->
                 TopNewsItem(
-                    article = articles[index],
+                    article = resultsList[index],
                     onNewsClicked = { navController.navigate("Detail/$index") }
                 )
             }
@@ -65,9 +76,13 @@ fun TopNewsItem(article: TopNewsArticle, onNewsClicked: ()-> Unit = {}){
                 .padding(top = 16.dp, start = 16.dp),
             verticalArrangement = Arrangement.SpaceBetween,
         ) {
-            Text(text = MockData.stringToDate(article.publishedAt!!).getTimeAgo(), color = Color.White, fontWeight = FontWeight.SemiBold)
+            article.publishedAt?.let {
+                Text(text = MockData.stringToDate(it).getTimeAgo(), color = Color.White, fontWeight = FontWeight.SemiBold)
+            }
             Spacer(modifier = Modifier.height(80.dp))
-            Text(text = article.title!!, color = Color.White, fontWeight = FontWeight.SemiBold)
+            article.title?.let {
+                Text(text = it, color = Color.White, fontWeight = FontWeight.SemiBold)
+            }
         }
     }
 }

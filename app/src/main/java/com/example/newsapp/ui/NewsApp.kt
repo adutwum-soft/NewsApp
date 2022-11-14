@@ -52,31 +52,38 @@ fun Navigation(
     newsManager: NewsManager = NewsManager(),
     paddingValues: PaddingValues
 ){
-    val articles = newsManager.newsResponse.value.articles
+    val articles = mutableListOf(TopNewsArticle())
+    articles.addAll(newsManager.newsResponse.value.articles ?: listOf(TopNewsArticle()))
+
     Log.d("news", "$articles")
 
-    articles?.let {
-        NavHost(
-            navController = navController,
-            startDestination = BottomMenuScreen.TopNews.route,
-            modifier = Modifier.padding(paddingValues = paddingValues)
-        ){
-            bottomNavigation(navController, articles = articles, newsManager = newsManager)
+    NavHost(
+        navController = navController,
+        startDestination = BottomMenuScreen.TopNews.route,
+        modifier = Modifier.padding(paddingValues = paddingValues)
+    ){
+        bottomNavigation(navController, articles = articles, newsManager = newsManager)
 //        composable(BottomMenuScreen.TopNews.route){
 //            TopNews(navController = navController, articles = articles!!)
 //        }
-            composable("Detail/{index}",
-                arguments = listOf(
-                    navArgument("index"){
-                        type = NavType.IntType
-                    }
-                )
-            ){
-                val index = it.arguments?.getInt("index")
-                index?.let{
-                    val article = articles[index]
-                    DetailsScreen(navController = navController, article, scrollState)
+        composable("Detail/{index}",
+            arguments = listOf(
+                navArgument("index"){
+                    type = NavType.IntType
                 }
+            )
+        ){
+            val index = it.arguments?.getInt("index")
+            index?.let{
+                if (newsManager.query.value.isNotEmpty()){
+                    articles.clear()
+                    articles.addAll(newsManager.searchNews.value.articles ?: listOf())
+                }else{
+                    articles.clear()
+                    articles.addAll(newsManager.newsResponse.value.articles ?: listOf())
+                }
+                val article = articles[index]
+                DetailsScreen(navController = navController, article, scrollState)
             }
         }
     }
@@ -84,7 +91,7 @@ fun Navigation(
 
 fun NavGraphBuilder.bottomNavigation(navController: NavController, articles: List<TopNewsArticle>, newsManager: NewsManager){
     composable(BottomMenuScreen.TopNews.route){
-        TopNews(navController = navController, articles = articles)
+        TopNews(navController = navController, articles = articles, query = newsManager.query, newsManager = newsManager)
     }
     composable(BottomMenuScreen.Categories.route){
         newsManager.getArticlesByCategory(ArticleCategory.BUSINESS.categoryName)
