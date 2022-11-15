@@ -2,23 +2,24 @@ package com.example.newsapp.ui
 
 import android.util.Log
 import androidx.compose.foundation.ScrollState
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material.Scaffold
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.navigation.*
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.example.newsapp.MockData
 import com.example.newsapp.components.BottomMenu
 import com.example.newsapp.models.ArticleCategory
 import com.example.newsapp.models.BottomMenuScreen
 import com.example.newsapp.models.TopNewsArticle
+import com.example.newsapp.network.Api
 import com.example.newsapp.network.NewsManager
 import com.example.newsapp.ui.screen.Categories
 import com.example.newsapp.ui.screen.DetailsScreen
@@ -30,18 +31,21 @@ import com.example.newsapp.ui.screen.TopNews
  */
 
 @Composable
-fun NewsApp(){
+fun NewsApp(mainViewModel: MainViewModel){
     val scrollState = rememberScrollState()
     val navController = rememberNavController()
-    MainScreen(navController, scrollState)
+    MainScreen(navController, scrollState, viewModel = mainViewModel)
 }
 
 @Composable
-fun MainScreen(navController: NavHostController, scrollState: ScrollState){
+fun MainScreen(navController: NavHostController,
+               scrollState: ScrollState,
+               viewModel: MainViewModel
+){
     Scaffold(
         bottomBar = { BottomMenu(navController) },
     ) {
-        Navigation(navController = navController, scrollState = scrollState, paddingValues = it)
+        Navigation(navController = navController, scrollState = scrollState, paddingValues = it, viewModel = viewModel)
     }
 }
 
@@ -49,11 +53,13 @@ fun MainScreen(navController: NavHostController, scrollState: ScrollState){
 fun Navigation(
     navController: NavHostController,
     scrollState: ScrollState,
-    newsManager: NewsManager = NewsManager(),
-    paddingValues: PaddingValues
+    newsManager: NewsManager = NewsManager(Api.retrofitService),
+    paddingValues: PaddingValues,
+    viewModel: MainViewModel
 ){
     val articles = mutableListOf(TopNewsArticle())
-    articles.addAll(newsManager.newsResponse.value.articles ?: listOf(TopNewsArticle()))
+    val topArticles = viewModel.newsResponse.collectAsState().value.articles
+    articles.addAll(topArticles ?: listOf())
 
     Log.d("news", "$articles")
 
@@ -62,7 +68,8 @@ fun Navigation(
         startDestination = BottomMenuScreen.TopNews.route,
         modifier = Modifier.padding(paddingValues = paddingValues)
     ){
-        bottomNavigation(navController, articles = articles, newsManager = newsManager)
+        val queryState = mutableStateOf(viewModel.query.value)
+        bottomNavigation(navController, articles = articles, query = queryState, viewModel = viewModel)
 //        composable(BottomMenuScreen.TopNews.route){
 //            TopNews(navController = navController, articles = articles!!)
 //        }
@@ -75,12 +82,12 @@ fun Navigation(
         ){
             val index = it.arguments?.getInt("index")
             index?.let{
-                if (newsManager.query.value.isNotEmpty()){
+                if (queryState.value != ""){
                     articles.clear()
-                    articles.addAll(newsManager.searchNews.value.articles ?: listOf())
+                    articles.addAll(viewModel.searchNews.value.articles ?: listOf())
                 }else{
                     articles.clear()
-                    articles.addAll(newsManager.newsResponse.value.articles ?: listOf())
+                    articles.addAll(viewModel.newsResponse.value.articles ?: listOf())
                 }
                 val article = articles[index]
                 DetailsScreen(navController = navController, article, scrollState)
@@ -89,20 +96,24 @@ fun Navigation(
     }
 }
 
-fun NavGraphBuilder.bottomNavigation(navController: NavController, articles: List<TopNewsArticle>, newsManager: NewsManager){
+fun NavGraphBuilder.bottomNavigation(navController: NavController,
+                                     articles: List<TopNewsArticle>,
+                                     query: MutableState<String>,
+                                     viewModel: MainViewModel
+){
     composable(BottomMenuScreen.TopNews.route){
-        TopNews(navController = navController, articles = articles, query = newsManager.query, newsManager = newsManager)
+        TopNews(navController = navController, articles = articles, query = query, viewModel = viewModel)
     }
     composable(BottomMenuScreen.Categories.route){
-        newsManager.getArticlesByCategory(ArticleCategory.BUSINESS.categoryName)
-        newsManager.onSelectedCategoryChanged(ArticleCategory.BUSINESS.categoryName)
+        viewModel.getArticlesByCategory(ArticleCategory.BUSINESS.categoryName)
+        viewModel.onSelectedCategoryChange(ArticleCategory.BUSINESS.categoryName)
 
-        Categories(newsManager = newsManager, onFetchCategory = {
-            newsManager.onSelectedCategoryChanged(it)
-            newsManager.getArticlesByCategory(it)
+        Categories(viewModel = viewModel, onFetchCategory = {
+            viewModel.onSelectedCategoryChange(it)
+            viewModel.getArticlesByCategory(it)
         })
     }
     composable(BottomMenuScreen.Sources.route){
-        Sources(newsManager = newsManager)
+        Sources(viewModel = viewModel)
     }
 }

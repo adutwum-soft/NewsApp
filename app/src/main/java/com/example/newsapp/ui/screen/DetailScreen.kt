@@ -1,8 +1,6 @@
 package com.example.newsapp.ui.screen
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.ScrollState
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.*
@@ -19,14 +17,12 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.imageResource
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.newsapp.MockData
 import com.example.newsapp.MockData.getTimeAgo
-import com.example.newsapp.models.NewsData
 import com.example.newsapp.R
 import com.example.newsapp.models.TopNewsArticle
 import com.skydoves.landscapist.coil.CoilImage

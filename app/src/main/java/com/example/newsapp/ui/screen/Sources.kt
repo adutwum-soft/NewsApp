@@ -24,14 +24,14 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import com.example.newsapp.R
 import com.example.newsapp.models.TopNewsArticle
-import com.example.newsapp.network.NewsManager
+import com.example.newsapp.ui.MainViewModel
 
 /**
  * Created by Patrick Adutwum on 22/10/2022.
  */
 
 @Composable
-fun Sources(newsManager: NewsManager){
+fun Sources(viewModel: MainViewModel){
 
     val items = listOf(
         "TechCrunch" to "techcrunch",
@@ -44,7 +44,7 @@ fun Sources(newsManager: NewsManager){
 
     Scaffold(topBar = {
         TopAppBar(
-            title = { Text(text = "${newsManager.sourceName.value} Source") },
+            title = { Text(text = "${viewModel.sourceName.collectAsState().value} Source") },
             actions = {
                 var menuExpanded by remember { mutableStateOf(false) }
                 IconButton(onClick = { menuExpanded = true}) {
@@ -55,7 +55,8 @@ fun Sources(newsManager: NewsManager){
                     DropdownMenu(expanded = menuExpanded, onDismissRequest = { menuExpanded = false}) {
                         items.forEach {
                             DropdownMenuItem(onClick = {
-                                newsManager.sourceName.value = it.second
+                                viewModel.sourceName.value = it.second
+                                viewModel.getArticleBySource()
                                 menuExpanded = false
                             }) {
                                 Text(text = it.first)
@@ -66,9 +67,9 @@ fun Sources(newsManager: NewsManager){
             }
         )
     }) {
-        newsManager.getArticlesBySource()
-        val articles = newsManager.getArticleBySource.value
-        SourceContent(articles = articles.articles?: listOf())
+        viewModel.getArticleBySource()
+        val articles = viewModel.getArticleBySource.collectAsState().value.articles
+        SourceContent(articles = articles ?: listOf())
     }
 }
 

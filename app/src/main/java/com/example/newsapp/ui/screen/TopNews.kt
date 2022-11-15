@@ -6,6 +6,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -21,7 +22,7 @@ import com.example.newsapp.MockData.getTimeAgo
 import com.example.newsapp.R
 import com.example.newsapp.components.SearchBar
 import com.example.newsapp.models.TopNewsArticle
-import com.example.newsapp.network.NewsManager
+import com.example.newsapp.ui.MainViewModel
 import com.skydoves.landscapist.coil.CoilImage
 
 /**
@@ -30,16 +31,16 @@ import com.skydoves.landscapist.coil.CoilImage
 
 @Composable
 fun TopNews(navController: NavController, articles: List<TopNewsArticle>,
-            query: MutableState<String>, newsManager: NewsManager){
+            query: MutableState<String>, viewModel: MainViewModel){
     Column(
         modifier = Modifier.fillMaxWidth(),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
 //        Text(text = "Top News", fontWeight = FontWeight.SemiBold)
-        SearchBar(query = query, newsManager = newsManager)
+        SearchBar(query = query, viewModel = viewModel)
         val resultsList = mutableListOf<TopNewsArticle>()
         if (query.value != ""){
-            resultsList.addAll(newsManager.searchNews.value.articles?: articles)
+            resultsList.addAll(viewModel.searchNews.collectAsState().value.articles?: articles)
         }else{
             resultsList.addAll(articles)
         }
