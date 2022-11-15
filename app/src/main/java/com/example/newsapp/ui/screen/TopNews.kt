@@ -20,6 +20,8 @@ import androidx.navigation.NavController
 import com.example.newsapp.MockData
 import com.example.newsapp.MockData.getTimeAgo
 import com.example.newsapp.R
+import com.example.newsapp.components.ErrorUI
+import com.example.newsapp.components.LoadingUI
 import com.example.newsapp.components.SearchBar
 import com.example.newsapp.models.TopNewsArticle
 import com.example.newsapp.ui.MainViewModel
@@ -30,8 +32,13 @@ import com.skydoves.landscapist.coil.CoilImage
  */
 
 @Composable
-fun TopNews(navController: NavController, articles: List<TopNewsArticle>,
-            query: MutableState<String>, viewModel: MainViewModel){
+fun TopNews(navController: NavController,
+            articles: List<TopNewsArticle>,
+            query: MutableState<String>,
+            viewModel: MainViewModel,
+            isError: MutableState<Boolean>,
+            isLoading: MutableState<Boolean>
+){
     Column(
         modifier = Modifier.fillMaxWidth(),
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -44,12 +51,19 @@ fun TopNews(navController: NavController, articles: List<TopNewsArticle>,
         }else{
             resultsList.addAll(articles)
         }
-        LazyColumn{
-            items(resultsList.size){index->
-                TopNewsItem(
-                    article = resultsList[index],
-                    onNewsClicked = { navController.navigate("Detail/$index") }
-                )
+
+        when{
+            isLoading.value -> LoadingUI()
+            isError.value -> ErrorUI()
+            else ->{
+                LazyColumn{
+                    items(resultsList.size){index->
+                        TopNewsItem(
+                            article = resultsList[index],
+                            onNewsClicked = { navController.navigate("Detail/$index") }
+                        )
+                    }
+                }
             }
         }
     }
